@@ -1,0 +1,5 @@
+node_modules/
+tunnel.log
+ultimo_link.txt
+data/*.json
+.env
