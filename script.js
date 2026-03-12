@@ -1,9 +1,55 @@
-const API_URL = 'https://trips-congratulations-specifics-did.trycloudflare.com';
+const API_URL = 'https://dylan-even-variable-lying.trycloudflare.com';
 
-// Função de Login
+// --- CONTROLE DE NAVEGAÇÃO ---
+function mostrarTela(idTela) {
+    // 1. Esconde todas as seções
+    const telas = document.querySelectorAll('.tela-sistema');
+    telas.forEach(tela => tela.style.display = 'none');
+    
+    // 2. Mostra a tela desejada
+    const telaAlvo = document.getElementById(idTela);
+    if (telaAlvo) {
+        telaAlvo.style.display = 'block';
+    }
+
+    // 3. Controle do Menu (Só aparece se não for a tela de login)
+    const menu = document.getElementById('menu-principal');
+    if (menu) {
+        if (idTela === 'tela-login') {
+            menu.style.display = 'none';
+        } else {
+            menu.style.display = 'flex';
+        }
+    }
+}
+
+// --- INICIALIZAÇÃO ---
+document.addEventListener('DOMContentLoaded', () => {
+    const user = localStorage.getItem('usuarioLogado');
+    
+    if (user) {
+        mostrarTela('tela-dashboard');
+    } else {
+        mostrarTela('tela-login');
+    }
+
+    // Configura cliques dos botões do Menu
+    document.getElementById('nav-dashboard')?.addEventListener('click', () => mostrarTela('tela-dashboard'));
+    document.getElementById('nav-historico')?.addEventListener('click', () => {
+        mostrarTela('tela-historico');
+        carregarHistorico();
+    });
+    document.getElementById('nav-perfil')?.addEventListener('click', () => mostrarTela('tela-perfil'));
+    document.getElementById('nav-sair')?.addEventListener('click', fazerLogout);
+});
+
+// --- FUNÇÕES DE LÓGICA ---
+
 async function fazerLogin() {
     const usuario = document.getElementById('usuario').value;
     const senha = document.getElementById('senha').value;
+
+    if (!usuario || !senha) return alert("Preencha todos os campos!");
 
     try {
         const response = await fetch(`${API_URL}/login`, {
@@ -15,9 +61,9 @@ async function fazerLogin() {
         const data = await response.json();
 
         if (data.success) {
-            alert('Bem-vindo, ' + data.user.usuario);
             localStorage.setItem('usuarioLogado', JSON.stringify(data.user));
-            window.location.href = 'dashboard.html';
+            alert('Bem-vindo, ' + data.user.usuario);
+            mostrarTela('tela-dashboard');
         } else {
             alert(data.message);
         }
@@ -27,12 +73,12 @@ async function fazerLogin() {
     }
 }
 
-// Função para Enviar Leitura
 async function enviarLeitura() {
     const valor = document.getElementById('valorLeitura').value;
-    const user = JSON.parse(localStorage.getItem('usuarioLogado'));
+    const userJson = localStorage.getItem('usuarioLogado');
 
-    if (!valor || !user) return alert('Preencha os dados!');
+    if (!valor || !userJson) return alert('Insira um valor válido!');
+    const user = JSON.parse(userJson);
 
     try {
         const response = await fetch(`${API_URL}/leitura`, {
@@ -41,36 +87,50 @@ async function enviarLeitura() {
             body: JSON.stringify({
                 usuarioId: user.id,
                 valorLeitura: valor,
-                data: new Date().toLocaleDateString()
+                data: new Date().toLocaleDateString('pt-BR')
             })
         });
 
         const result = await response.json();
         if (result.success) {
             alert('Leitura salva com sucesso!');
-            carregarHistorico();
+            document.getElementById('valorLeitura').value = '';
         }
     } catch (error) {
         alert('Erro ao salvar no servidor.');
     }
 }
 
-// Função para Carregar Histórico
 async function carregarHistorico() {
-    const user = JSON.parse(localStorage.getItem('usuarioLogado'));
+    const userJson = localStorage.getItem('usuarioLogado');
     const lista = document.getElementById('listaHistorico');
     
+    if (!userJson || !lista) return;
+    const user = JSON.parse(userJson);
+    
+    lista.innerHTML = "<p>Carregando...</p>";
+
     try {
         const response = await fetch(`${API_URL}/historico/${user.id}`);
         const dados = await response.json();
         
+        if (dados.length === 0) {
+            lista.innerHTML = "<p>Nenhuma leitura encontrada.</p>";
+            return;
+        }
+
         lista.innerHTML = dados.map(item => `
-            <div class="card-leitura">
-                <p>Data: ${item.data}</p>
-                <p>Consumo: <strong>${item.valorLeitura} m³</strong></p>
+            <div>
+                <p><strong>📅 Data:</strong> ${item.data}</p>
+                <p><strong>💧 Consumo:</strong> ${item.valorLeitura} m³</p>
             </div>
         `).join('');
     } catch (error) {
-        console.log('Erro ao carregar histórico');
+        lista.innerHTML = "<p>Erro ao carregar dados do servidor.</p>";
     }
+}
+
+function fazerLogout() {
+    localStorage.removeItem('usuarioLogado');
+    mostrarTela('tela-login');
 }
