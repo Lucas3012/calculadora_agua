@@ -1,0 +1,111 @@
+:root {
+    --primary: #3b82f6;
+    --dark: #1e293b;
+    --light: #f8fafc;
+    --text: #334155;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: var(--light);
+    color: var(--text);
+}
+
+/* Sidebar */
+.sidebar {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background-color: var(--dark);
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #cbd5e1;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover { color: white; background: #334155; }
+
+.sidebar .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+}
+
+.user-info { text-align: center; color: white; padding: 20px; }
+
+/* Main Content */
+#main { transition: margin-left .5s; }
+
+header {
+    background: var(--dark);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.openbtn {
+    font-size: 20px;
+    cursor: pointer;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.container { padding: 20px; max-width: 800px; margin: auto; }
+
+.content-section { display: none; }
+.content-section.active { display: block; animation: fadeIn 0.5s; }
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary);
+    border: none;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.chart-container { height: 300px; position: relative; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+th { background: #f1f5f9; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+

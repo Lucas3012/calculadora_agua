@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucas Omni 2026 - Gestão Hídrica</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <div class="user-info">
+            <i class="fa-solid fa-droplet fa-2x"></i>
+            <p id="userDisplay">ID: ----</p>
+        </div>
+        <hr>
+        <a href="#" onclick="showSection('dashboard')"><i class="fa fa-chart-line"></i> Dashboard</a>
+        <a href="#" onclick="showSection('leitura')"><i class="fa fa-plus-circle"></i> Nova Leitura</a>
+        <a href="#" onclick="showSection('historico')"><i class="fa fa-history"></i> Histórico</a>
+        <a href="#" onclick="showSection('admin')"><i class="fa fa-user-shield"></i> Buscar Cliente</a>
+        <a href="#" onclick="logout()" class="logout"><i class="fa fa-sign-out-alt"></i> Sair</a>
+    </div>
+
+    <div id="main">
+        <header>
+            <button class="openbtn" onclick="openNav()">&#9776; Menu</button>
+            <h2>LUCAS OMNI 2026</h2>
+        </header>
+
+        <div class="container">
+            <section id="dashboard" class="content-section active">
+                <h3>Resumo de Consumo</h3>
+                <div class="chart-container">
+                    <canvas id="graficoConsumo"></canvas>
+                </div>
+            </section>
+
+            <section id="leitura" class="content-section">
+                <h3>Registrar Consumo</h3>
+                <div class="card">
+                    <label>Leitura Atual do Hidrômetro (m³):</label>
+                    <input type="number" id="leituraInput" placeholder="Ex: 1250">
+                    <button class="btn-primary" onclick="salvarLeitura()">Salvar Registro</button>
+                </div>
+            </section>
+
+            <section id="historico" class="content-section">
+                <h3>Meu Histórico</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Consumo</th>
+                                <th>Valor</th>
+                                <th>PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaHistorico"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="admin" class="content-section">
+                <h3>Consultar ID Público</h3>
+                <div class="card">
+                    <input type="text" id="idBusca" placeholder="Digite o ID de 4 dígitos">
+                    <button class="btn-primary" onclick="buscarCliente()">Buscar</button>
+                </div>
+                <div id="resultadoBusca"></div>
+            </section>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
