@@ -3,22 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucas Omni - Gestão Hídrica</title>
+    <title>Lucas Omni 2026</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <section id="tela-login" class="tela-sistema">
-        <div class="container">
-            <h1>🌊 Lucas Omni</h1>
-            <p>Acesse seu painel de consumo</p>
-            <div class="form-grupo">
-                <input type="text" id="usuario" placeholder="Usuário">
-                <input type="password" id="senha" placeholder="Senha">
-                <button onclick="fazerLogin()">Entrar</button>
-            </div>
-        </div>
-    </section>
 
     <nav id="menu-principal" class="menu-invisivel">
         <button id="nav-dashboard">Início</button>
@@ -27,31 +19,51 @@
         <button id="nav-sair" class="btn-sair">Sair</button>
     </nav>
 
+    <section id="tela-login" class="tela-sistema">
+        <div class="container">
+            <h1>🌊 Lucas Omni</h1>
+            <p style="margin-bottom: 20px; color: #666;">Gestão Hídrica Inteligente</p>
+            <input type="text" id="usuario" placeholder="Usuário">
+            <input type="password" id="senha" placeholder="Senha">
+            <button onclick="fazerLogin()">Entrar</button>
+        </div>
+    </section>
+
     <section id="tela-dashboard" class="tela-sistema">
         <div class="container">
             <h2>Lançar Consumo</h2>
-            <p>Insira a leitura atual do hidrômetro:</p>
+            <p style="margin-bottom: 20px;">Leitura atual do hidrômetro:</p>
             <input type="number" id="valorLeitura" placeholder="Valor em m³">
             <button onclick="enviarLeitura()" class="btn-sucesso">Salvar Leitura</button>
         </div>
     </section>
 
     <section id="tela-historico" class="tela-sistema">
-        <div class="container">
+        <div class="container" style="max-width: 500px;">
             <h2>Meu Histórico</h2>
+            
+            <canvas id="graficoConsumo" style="width: 100%; max-height: 180px; margin-bottom: 20px;"></canvas>
+            
+            <div id="previsao-conta" style="background: #e1f5fe; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #01579b;">
+                <p style="font-size: 13px; color: #01579b; margin: 0;">Previsão da Conta</p>
+                <h3 id="valorEstimado" style="color: #01579b; margin: 5px 0;">R$ 0,00</h3>
+                <small id="detalheConsumo" style="color: #555; font-size: 11px;">Total: 0 m³</small>
+            </div>
+
             <div id="listaHistorico">
-                <p>Nenhuma leitura encontrada.</p>
+                <p>Carregando...</p>
             </div>
         </div>
     </section>
 
     <section id="tela-perfil" class="tela-sistema">
         <div class="container">
+            <div style="font-size: 50px; margin-bottom: 10px;">👤</div>
             <h2>Meu Perfil</h2>
-            <div class="card-perfil">
+            <div style="text-align: left; margin-top: 20px; color: #444;">
                 <p><strong>Nome:</strong> Lucas Emanuel</p>
-                <p><strong>Cargo:</strong> Gestor de TI / Automação</p>
-                <p><strong>Status:</strong> Ativo</p>
+                <p><strong>Cidade:</strong> Itabuna - BA</p>
+                <p><strong>Status:</strong> Online (Termux)</p>
             </div>
         </div>
     </section>

@@ -1,133 +1,96 @@
-const API_URL = 'https://morgan-engineering-wake-entirely.trycloudflare.com';
+const API_URL = 'https://flux-kept-critics-troy.trycloudflare.com';
+const TARIFA_POR_M3 = 6.50; 
+let meuGrafico = null;
 
-// --- CONTROLE DE NAVEGAÇÃO ---
 function mostrarTela(idTela) {
-    // 1. Esconde todas as seções
-    const telas = document.querySelectorAll('.tela-sistema');
-    telas.forEach(tela => tela.style.display = 'none');
-    
-    // 2. Mostra a tela desejada
-    const telaAlvo = document.getElementById(idTela);
-    if (telaAlvo) {
-        telaAlvo.style.display = 'block';
-    }
+    document.querySelectorAll('.tela-sistema').forEach(t => t.style.display = 'none');
+    const alvo = document.getElementById(idTela);
+    if (alvo) alvo.style.display = 'flex';
 
-    // 3. Controle do Menu (Só aparece se não for a tela de login)
     const menu = document.getElementById('menu-principal');
-    if (menu) {
-        if (idTela === 'tela-login') {
-            menu.style.display = 'none';
-        } else {
-            menu.style.display = 'flex';
-        }
+    if (idTela === 'tela-login') {
+        menu.classList.add('menu-invisivel');
+    } else {
+        menu.classList.remove('menu-invisivel');
+        menu.style.display = 'flex';
     }
 }
 
-// --- INICIALIZAÇÃO ---
 document.addEventListener('DOMContentLoaded', () => {
     const user = localStorage.getItem('usuarioLogado');
-    
-    if (user) {
-        mostrarTela('tela-dashboard');
-    } else {
-        mostrarTela('tela-login');
-    }
+    user ? mostrarTela('tela-dashboard') : mostrarTela('tela-login');
 
-    // Configura cliques dos botões do Menu
-    document.getElementById('nav-dashboard')?.addEventListener('click', () => mostrarTela('tela-dashboard'));
-    document.getElementById('nav-historico')?.addEventListener('click', () => {
-        mostrarTela('tela-historico');
-        carregarHistorico();
-    });
-    document.getElementById('nav-perfil')?.addEventListener('click', () => mostrarTela('tela-perfil'));
-    document.getElementById('nav-sair')?.addEventListener('click', fazerLogout);
+    document.getElementById('nav-dashboard').onclick = () => mostrarTela('tela-dashboard');
+    document.getElementById('nav-historico').onclick = () => { mostrarTela('tela-historico'); carregarHistorico(); };
+    document.getElementById('nav-perfil').onclick = () => mostrarTela('tela-perfil');
+    document.getElementById('nav-sair').onclick = fazerLogout;
 });
-
-// --- FUNÇÕES DE LÓGICA ---
 
 async function fazerLogin() {
     const usuario = document.getElementById('usuario').value;
     const senha = document.getElementById('senha').value;
-
-    if (!usuario || !senha) return alert("Preencha todos os campos!");
-
     try {
-        const response = await fetch(`${API_URL}/login`, {
+        const res = await fetch(`${API_URL}/login`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usuario, senha })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({usuario, senha})
         });
-
-        const data = await response.json();
-
+        const data = await res.json();
         if (data.success) {
             localStorage.setItem('usuarioLogado', JSON.stringify(data.user));
-            alert('Bem-vindo, ' + data.user.usuario);
+            Swal.fire({icon:'success', title:'Bem-vindo!', showConfirmButton:false, timer:1500});
             mostrarTela('tela-dashboard');
         } else {
-            alert(data.message);
+            Swal.fire('Erro', 'Dados inválidos', 'error');
         }
-    } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao conectar com o servidor no Termux.');
-    }
+    } catch (e) { Swal.fire('Erro', 'Servidor Offline', 'error'); }
 }
 
 async function enviarLeitura() {
     const valor = document.getElementById('valorLeitura').value;
-    const userJson = localStorage.getItem('usuarioLogado');
-
-    if (!valor || !userJson) return alert('Insira um valor válido!');
-    const user = JSON.parse(userJson);
+    const user = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (!valor) return Swal.fire('Aviso', 'Digite o valor', 'info');
 
     try {
-        const response = await fetch(`${API_URL}/leitura`, {
+        await fetch(`${API_URL}/leitura`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                usuarioId: user.id,
-                valorLeitura: valor,
-                data: new Date().toLocaleDateString('pt-BR')
-            })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({usuarioId: user.id, valorLeitura: parseFloat(valor), data: new Date().toLocaleDateString('pt-BR')})
         });
-
-        const result = await response.json();
-        if (result.success) {
-            alert('Leitura salva com sucesso!');
-            document.getElementById('valorLeitura').value = '';
-        }
-    } catch (error) {
-        alert('Erro ao salvar no servidor.');
-    }
+        Swal.fire('Sucesso', 'Leitura salva!', 'success');
+        document.getElementById('valorLeitura').value = '';
+    } catch (e) { Swal.fire('Erro', 'Falha ao salvar', 'error'); }
 }
 
 async function carregarHistorico() {
-    const userJson = localStorage.getItem('usuarioLogado');
+    const user = JSON.parse(localStorage.getItem('usuarioLogado'));
     const lista = document.getElementById('listaHistorico');
-    
-    if (!userJson || !lista) return;
-    const user = JSON.parse(userJson);
-    
-    lista.innerHTML = "<p>Carregando...</p>";
-
     try {
-        const response = await fetch(`${API_URL}/historico/${user.id}`);
-        const dados = await response.json();
-        
-        if (dados.length === 0) {
-            lista.innerHTML = "<p>Nenhuma leitura encontrada.</p>";
-            return;
-        }
+        const res = await fetch(`${API_URL}/historico/${user.id}`);
+        const dados = await res.json();
+        if (dados.length > 0) {
+            lista.innerHTML = dados.slice().reverse().map(i => `
+                <div style="background:#f8f9fa; padding:10px; border-radius:8px; margin-bottom:5px; text-align:left; border-left:4px solid #007bff;">
+                    <small>${i.data}</small><br><strong>${i.valorLeitura} m³</strong>
+                </div>`).join('');
 
-        lista.innerHTML = dados.map(item => `
-            <div>
-                <p><strong>📅 Data:</strong> ${item.data}</p>
-                <p><strong>💧 Consumo:</strong> ${item.valorLeitura} m³</p>
-            </div>
-        `).join('');
-    } catch (error) {
-        lista.innerHTML = "<p>Erro ao carregar dados do servidor.</p>";
-    }
+            const totalM3 = dados.reduce((a, b) => a + parseFloat(b.valorLeitura), 0);
+            document.getElementById('valorEstimado').innerText = `R$ ${(totalM3 * TARIFA_POR_M3).toFixed(2)}`;
+            document.getElementById('detalheConsumo').innerText = `Total: ${totalM3} m³ (R$ ${TARIFA_POR_M3}/m³)`;
+
+            renderizarGrafico(dados.slice(-7).map(d => d.data), dados.slice(-7).map(d => d.valorLeitura));
+        } else { lista.innerHTML = '<p>Nenhum registro.</p>'; }
+    } catch (e) { console.log("Erro"); }
+}
+
+function renderizarGrafico(labels, valores) {
+    const ctx = document.getElementById('graficoConsumo').getContext('2d');
+    if (meuGrafico) meuGrafico.destroy();
+    meuGrafico = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'm³', data: valores, borderColor: '#007bff', tension: 0.4, fill: true, backgroundColor: 'rgba(0,123,255,0.1)' }] },
+        options: { plugins: { legend: { display: false } } }
+    });
 }
 
 function fazerLogout() {

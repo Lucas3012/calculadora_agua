@@ -1,23 +1,57 @@
+cat <<'EOF' > cadastrar.sh
 #!/bin/bash
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
+RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}👤 Gerenciador de Usuários - Lucas Omni${NC}"
+echo -e "${BLUE}👥 Gerenciador de Usuários (Múltiplos) - Lucas Omni${NC}"
 
-# Pedir novos dados
-read -p "Digite o novo nome de usuário: " NOVO_USER
-read -p "Digite a nova senha: " NOVA_SENHA
+# Pedir dados
+read -p "Novo usuário: " USERNAME
+read -p "Nova senha: " PASSWORD
 
-# Caminho do arquivo de banco de dados
-DB_FILE="data/usuarios.json"
+if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ]; then
+    echo -e "${RED}❌ Erro: Usuário e senha não podem ser vazios!${NC}"
+    exit 1
+fi
 
-# Criar a pasta data se não existir
-mkdir -p data
+# Código Node.js para manipular o JSON com segurança
+node -e "
+const fs = require('fs');
+const path = 'data/usuarios.json';
 
-# Criar ou atualizar o arquivo JSON com o novo usuário
-# Nota: Aqui estamos definindo o ID como 1 para simplificar
-echo "[{\"id\": 1, \"usuario\": \"$NOVO_USER\", \"senha\": \"$NOVA_SENHA\"}]" > "$DB_FILE"
+// Garante que a pasta existe
+if (!fs.existsSync('data')) fs.mkdirSync('data');
 
-echo -e "${GREEN}✅ Usuário '$NOVO_USER' cadastrado com sucesso!${NC}"
-echo -e "${BLUE}Dica: Reinicie o servidor com ./iniciar.sh para garantir a leitura.${NC}"
+let usuarios = [];
+if (fs.existsSync(path)) {
+    try {
+        usuarios = JSON.parse(fs.readFileSync(path, 'utf8'));
+    } catch (e) {
+        usuarios = [];
+    }
+}
+
+// Verifica se o usuário já existe
+if (usuarios.some(u => u.usuario === '$USERNAME')) {
+    console.log('${RED}⚠️ O usuário \"$USERNAME\" já existe!${NC}');
+    process.exit(1);
+}
+
+// Cria novo usuário com ID incremental
+const novoId = usuarios.length > 0 ? Math.max(...usuarios.map(u => u.id)) + 1 : 1;
+usuarios.push({ id: novoId, usuario: '$USERNAME', senha: '$PASSWORD' });
+
+fs.writeFileSync(path, JSON.stringify(usuarios, null, 2));
+console.log('${GREEN}✅ Usuário \"$USERNAME\" (ID: ' + novoId + ') adicionado com sucesso!${NC}');
+"
+
+# Sincroniza o banco de dados com o GitHub após o cadastro
+echo -e "${BLUE}📤 Sincronizando banco de dados com GitHub...${NC}"
+git add data/usuarios.json
+git commit -m "Novo usuário cadastrado: $USERNAME"
+git push origin main --force
+EOF
+
+chmod +x cadastrar.sh
