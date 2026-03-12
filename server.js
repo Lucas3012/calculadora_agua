@@ -1,37 +1,43 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const cors = require('cors');
 const db = require('./database');
-const app = express();
+const path = require('path');
 
+const app = express();
+const PORT = 3000;
+
+// Configurações essenciais
+app.use(cors()); // Permite acesso do GitHub Pages
 app.use(express.json());
 app.use(express.static('public'));
 
-const PORT = process.env.PORT || 3000;
+// Rota de Login
+app.post('/login', (req, res) => {
+    const { usuario, senha } = req.body;
+    const user = db.findOne('usuarios', { usuario, senha });
 
-app.post('/api/registro', async (req, res) => {
-    const { email, senha } = req.body;
-    const hash = await bcrypt.hash(senha, 10);
-    const user = db.save('usuarios', { email, senha: hash, id_publico: Math.floor(1000 + Math.random() * 9000).toString() });
-    res.json({ idPublico: user.id_publico });
-});
-
-app.post('/api/login', async (req, res) => {
-    const { email, senha } = req.body;
-    const user = db.findOne('usuarios', { email });
-    if (user && await bcrypt.compare(senha, user.senha)) {
-        const token = jwt.sign({ id: user.id }, "lucas_omni_2026");
-        return res.json({ token, idPublico: user.id_publico });
-    }
-    res.status(401).json({ error: "Credenciais inválidas" });
-});
-
-const server = app.listen(PORT, () => {
-    console.log(`🚀 Lucas Omni rodando na porta ${server.address().port}`);
-}).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-        console.log('⚠️ Porta 3000 ocupada, tentando 3001...');
-        app.listen(3001);
+    if (user) {
+        res.json({ success: true, message: "Login realizado!", user });
+    } else {
+        res.status(401).json({ success: false, message: "Usuário ou senha incorretos." });
     }
 });
 
+// Rota para Salvar Leitura de Água
+app.post('/leitura', (req, res) => {
+    const { usuarioId, valorLeitura, data } = req.body;
+    const novaLeitura = db.save('leituras', { usuarioId, valorLeitura, data });
+    res.json({ success: true, data: novaLeitura });
+});
+
+// Rota para buscar histórico
+app.get('/historico/:usuarioId', (req, res) => {
+    const { usuarioId } = req.params;
+    const todas = db.findAll('leituras');
+    const filtradas = todas.filter(l => l.usuarioId == usuarioId);
+    res.json(filtradas);
+});
+
+app.listen(PORT, () => {
+    console.log(`🚀 Lucas Omni rodando na porta ${PORT}`);
+});
