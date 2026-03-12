@@ -1,4 +1,4 @@
-const API_URL = 'https://dylan-even-variable-lying.trycloudflare.com';
+const API_URL = 'https://morgan-engineering-wake-entirely.trycloudflare.com';
 
 // --- CONTROLE DE NAVEGAÇÃO ---
 function mostrarTela(idTela) {
