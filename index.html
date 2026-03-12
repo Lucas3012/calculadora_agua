@@ -23,17 +23,34 @@
     <section id="tela-login" class="tela-sistema">
         <div class="container">
             <h1>🌊 Lucas Omni</h1>
-            <p style="margin-bottom: 20px; color: #666;">Gestão Hídrica Inteligente</p>
+            <p style="margin-bottom: 20px; color: #666;">Acesse sua conta</p>
             <input type="text" id="usuario" placeholder="Usuário">
             <input type="password" id="senha" placeholder="Senha">
             <button onclick="fazerLogin()">Entrar</button>
+            <p style="margin-top: 15px; font-size: 14px;">
+                Novo por aqui? <a href="#" onclick="mostrarTela('tela-cadastro')">Crie sua conta</a>
+            </p>
+        </div>
+    </section>
+
+    <section id="tela-cadastro" class="tela-sistema">
+        <div class="container">
+            <h2>Criar Conta</h2>
+            <p style="margin-bottom: 20px; color: #666;">Registre-se no sistema</p>
+            <input type="text" id="cad-usuario" placeholder="Usuário">
+            <input type="password" id="cad-senha" placeholder="Senha">
+            <input type="password" id="cad-senha-confirma" placeholder="Confirme a Senha">
+            <button onclick="fazerCadastro()" class="btn-sucesso">Finalizar Cadastro</button>
+            <p style="margin-top: 15px; font-size: 14px;">
+                Já tem conta? <a href="#" onclick="mostrarTela('tela-login')">Fazer Login</a>
+            </p>
         </div>
     </section>
 
     <section id="tela-dashboard" class="tela-sistema">
         <div class="container">
             <h2>Lançar Consumo</h2>
-            <p style="margin-bottom: 20px;">Leitura atual do hidrômetro:</p>
+            <p style="margin-bottom: 15px;">Leitura do hidrômetro:</p>
             <input type="number" id="valorLeitura" placeholder="Valor em m³">
             <button onclick="enviarLeitura()" class="btn-sucesso">Salvar Leitura</button>
         </div>
@@ -42,33 +59,30 @@
     <section id="tela-historico" class="tela-sistema">
         <div class="container" style="max-width: 500px;">
             <h2>Meu Histórico</h2>
-            
-            <canvas id="graficoConsumo" style="width: 100%; max-height: 180px; margin-bottom: 20px;"></canvas>
+            <canvas id="graficoConsumo" style="width: 100%; max-height: 180px; margin-bottom: 15px;"></canvas>
             
             <div id="previsao-conta" style="background: #e1f5fe; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #01579b;">
-                <p style="font-size: 13px; color: #01579b; margin: 0;">Fatura dos Últimos 30 Dias</p>
+                <p style="font-size: 13px; color: #01579b; margin: 0;">Fatura Mensal (30 dias)</p>
                 <h3 id="valorEstimado" style="color: #01579b; margin: 5px 0;">R$ 0,00</h3>
-                <small id="detalheConsumo" style="color: #555; font-size: 11px;">Total do mês: 0 m³</small>
+                <small id="detalheConsumo" style="color: #555; font-size: 11px;">Consumo: 0 m³</small>
             </div>
 
-            <button onclick="gerarPDF()" class="btn-info" style="margin-bottom: 20px; background-color: #17a2b8;">
-                📄 Emitir 2ª Via (PDF Mensal)
+            <button onclick="gerarPDF()" class="btn-info" style="margin-bottom: 15px; background: #17a2b8;">
+                📄 Emitir 2ª Via (PDF)
             </button>
 
-            <div id="listaHistorico">
-                <p>Carregando registros...</p>
-            </div>
+            <div id="listaHistorico"></div>
         </div>
     </section>
 
     <section id="tela-perfil" class="tela-sistema">
         <div class="container">
-            <div style="font-size: 50px; margin-bottom: 10px;">👤</div>
+            <div style="font-size: 50px;">👤</div>
             <h2>Meu Perfil</h2>
-            <div style="text-align: left; margin-top: 20px; color: #444;">
-                <p><strong>Nome:</strong> Lucas Emanuel</p>
+            <div style="text-align: left; margin-top: 15px;">
+                <p><strong>Nome:</strong> <span id="perfil-nome">Lucas Emanuel</span></p>
+                <p><strong>Status:</strong> Ativo</p>
                 <p><strong>Cidade:</strong> Itabuna - BA</p>
-                <p><strong>Status:</strong> Online (Termux)</p>
             </div>
         </div>
     </section>
