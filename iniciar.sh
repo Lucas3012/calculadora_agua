@@ -6,15 +6,15 @@ NC='\033[0m'
 
 echo -e "${BLUE}🌀 Iniciando Lucas Omni & Sincronizando GitHub...${NC}"
 
-# 1. Limpar processos antigos
+# 1. Limpeza
 fuser -k 3000/tcp 2>/dev/null
 pkill -9 node cloudflared 2>/dev/null
 sleep 2
 
-# 2. Iniciar Túnel Cloudflare
+# 2. Iniciar Túnel
 cloudflared tunnel --url http://localhost:3000 > tunnel.log 2>&1 &
 
-# 3. Capturar o novo link
+# 3. Capturar Link
 for i in {1..15}; do
     URL=$(grep -o 'https://[-a-z0-9.]*trycloudflare.com' tunnel.log | head -n 1)
     if [ -n "$URL" ]; then
@@ -26,24 +26,20 @@ for i in {1..15}; do
 done
 
 if [ -n "$URL" ]; then
-    # 4. ATUALIZAR O LINK NOS ARQUIVOS DE FRONTEND
-    # Isso procura por uma linha que contenha 'const API_URL' ou similar e troca o link
-    echo -e "${BLUE}📝 Atualizando link nos arquivos de frontend...${NC}"
-    
-    # Se você usa uma variável API_URL no script.js ou index.html:
-    sed -i "s|const API_URL = '.*'|const API_URL = '$URL'|g" public/script.js 2>/dev/null
-    sed -i "s|const API_URL = '.*'|const API_URL = '$URL'|g" public/index.html 2>/dev/null
+    # 4. Atualizar link no script.js (agora na raiz)
+    echo -e "${BLUE}📝 Atualizando script.js com o novo link...${NC}"
+    sed -i "s|const API_URL = '.*'|const API_URL = '$URL'|g" script.js 2>/dev/null
 
-    # 5. SUBIR PARA O GITHUB
-    echo -e "${BLUE}📤 Subindo para GitHub Pages...${NC}"
+    # 5. Enviar para o GitHub
+    echo -e "${BLUE}📤 Fazendo push para o GitHub Pages...${NC}"
     git add .
-    git commit -m "Auto-update API Link: $URL"
+    git commit -m "Auto-deploy: $URL"
     git push origin main --force
-    echo -e "${GREEN}🚀 GitHub Atualizado! Agora o link do GitHub Pages vai funcionar.${NC}"
+    echo -e "${GREEN}🚀 Site atualizado no GitHub! (Aguarde 30s for propagaçao)${NC}"
 else
     echo -e "${RED}❌ Falha ao gerar link do Cloudflare.${NC}"
 fi
 
-# 6. Iniciar o Servidor Node
-echo -e "${GREEN}💻 Servidor rodando localmente...${NC}"
+# 6. Rodar Servidor
+echo -e "${GREEN}💻 Servidor Node.js em execução...${NC}"
 node server.js

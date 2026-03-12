@@ -1,4 +1,4 @@
-const API_URL = 'https://albuquerque-islamic-maintains-spice.trycloudflare.com';
+const API_URL = 'https://trips-congratulations-specifics-did.trycloudflare.com';
 
 // Função de Login
 async function fazerLogin() {
